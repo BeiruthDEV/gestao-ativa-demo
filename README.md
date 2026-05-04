@@ -27,7 +27,7 @@ O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, ras
 
 ### Vídeo
 
-<video src="assets/demonstrando-software.mp4" controls width="100%"></video>
+[▶ Clique para assistir à demonstração](assets/demonstrando-software.mp4)
 
 ### Screenshots
 
