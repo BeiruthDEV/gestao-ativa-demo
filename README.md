@@ -1,23 +1,33 @@
 <div align="center">
 
 # Gestão Ativa
-
 **Análise financeira pessoal com inteligência — sem planilhas, sem complicação.**
+
+> 🚧 **Repositório demo** — versão pública simplificada de um SaaS em desenvolvimento ativo.
+> O código completo (auth, parsing avançado, regras de categorização) está em repositório privado.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python)](https://python.org/)
 
-[**Ver Demo →**](#) · [Reportar Bug](https://github.com/BeiruthDEV/gestao-ativa-demo/issues) · [Solicitar Feature](https://github.com/BeiruthDEV/gestao-ativa-demo/issues)
+[Reportar Bug](https://github.com/BeiruthDEV/gestao-ativa-demo/issues) · [Solicitar Feature](https://github.com/BeiruthDEV/gestao-ativa-demo/issues)
 
 </div>
 
 ---
 
+## O Problema
+
+Brasileiros perdem horas por mês organizando extratos bancários manualmente em planilhas. Conectar ao Open Finance expõe credenciais. Nenhuma solução existente combina privacidade + automação + acessibilidade num produto simples.
+
+**Gestão Ativa resolve isso em 3 passos:** suba o extrato → categorização automática → dashboard pronto. Sem criar conta, sem conectar ao banco, sem expor dados.
+
+---
+
 ## Visão Geral
 
-Gestão Ativa transforma extratos bancários em insights financeiros acionáveis. Suba um PDF ou CSV do seu banco, e em segundos você tem categorização automática, logos das marcas, detecção de recorrências e um dashboard interativo — sem criar conta, sem conectar ao banco, sem expor credenciais.
+Gestão Ativa transforma extratos bancários em insights financeiros acionáveis. Suba um PDF ou CSV do seu banco, e em segundos você tem categorização automática, logos das marcas, detecção de recorrências e um dashboard interativo.
 
 O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, rastreamento de hábitos financeiros, metas com progresso visual e calendário financeiro.
 
@@ -26,7 +36,6 @@ O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, ras
 ## Demonstração
 
 ### Vídeo
-
 [▶ Clique para assistir à demonstração](assets/demonstrando-software.mp4)
 
 ### Screenshots
@@ -40,7 +49,6 @@ O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, ras
 | ![Dashboard Free](assets/dashboard-free.png) | ![Transações Free](assets/transacoes-free.png) |
 
 ### Zeno — Assistente de IA
-
 ![Zeno](assets/zeno.png)
 
 ---
@@ -76,14 +84,14 @@ O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, ras
 │  │              Next.js App Router (React 19)           │   │
 │  │                                                      │   │
 │  │  /                   → Dashboard free + Upload       │   │
-│  │  /premium/dashboard  → Analytics avançado           │   │
-│  │  /premium/zeno       → Chat AI (Zeno)               │   │
-│  │  /premium/habits     → Hábitos + heatmap            │   │
-│  │  /premium/goals      → Metas + progresso            │   │
-│  │  /premium/agenda     → Calendário financeiro        │   │
+│  │  /premium/dashboard  → Analytics avançado            │   │
+│  │  /premium/zeno       → Chat AI (Zeno)                │   │
+│  │  /premium/habits     → Hábitos + heatmap             │   │
+│  │  /premium/goals      → Metas + progresso             │   │
+│  │  /premium/agenda     → Calendário financeiro         │   │
 │  │                                                      │   │
-│  │  auth-context.tsx  ── premium flag                  │   │
-│  │  localStorage      ── persistência client-side      │   │
+│  │  auth-context.tsx  ── premium flag                   │   │
+│  │  localStorage      ── persistência client-side       │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                         │ /api/v1/*                         │
 └─────────────────────────┼───────────────────────────────────┘
@@ -143,12 +151,12 @@ O plano premium adiciona **Zeno**, um assistente de IA em linguagem natural, ras
 
 ### 1. Parsing de PDFs Bancários Heterogêneos
 
-PDFs de bancos diferentes têm layouts radicalmente distintos — Nubank exporta tabelas limpas, bancos tradicionais geram PDFs escaneados com colunas misturadas.
+PDFs de bancos diferentes têm layouts radicalmente distintos — Nubank exporta tabelas limpas, bancos tradicionais geram PDFs com colunas misturadas.
 
 **Abordagem:** pdfplumber com extração por coordenadas + fallback para texto linha a linha. Heurísticas para detectar coluna de valor (padrão `R$ X.XXX,XX`) e coluna de data (múltiplos formatos brasileiros).
 
 ```python
-# Versão simplificada — lógica real omite regras específicas por banco
+# Versão simplificada — lógica completa em repositório privado
 def parse_pdf(file_path: str) -> list[dict]:
     transactions = []
     with pdfplumber.open(file_path) as pdf:
@@ -166,7 +174,7 @@ def parse_pdf(file_path: str) -> list[dict]:
 
 Descrições de transações bancárias são truncadas, abreviadas e cheias de códigos internos. `"PGTO PIX IFOOD*28374"` precisa virar `"Alimentação"`.
 
-**Abordagem:** dicionário de ~300 termos mapeados para ~30 categorias + matching fuzzy via `thefuzz` com threshold adaptativo. Termos mais específicos têm prioridade sobre genéricos.
+**Abordagem:** dicionário de ~300 termos mapeados para ~30 categorias + matching fuzzy via `thefuzz` com threshold adaptativo.
 
 ```python
 # Versão simplificada
@@ -191,7 +199,7 @@ def categorize(description: str) -> str:
 
 Identificar assinaturas (Netflix, Spotify) sem acesso ao histórico completo do usuário.
 
-**Abordagem:** agrupamento por merchant_name normalizado + análise de intervalo entre datas. Transações com mesmo comerciante em intervalos de 25–35 dias são marcadas como recorrentes.
+**Abordagem:** agrupamento por `merchant_name` normalizado + análise de intervalo entre datas. Transações com mesmo comerciante em intervalos de 25–35 dias são marcadas como recorrentes.
 
 ### 4. Resolução de Brand Logos
 
@@ -210,15 +218,12 @@ Sem banco de dados, como proteger `/premium/*` de forma confiável?
 ## Início Rápido
 
 ### Pré-requisitos
-
 - Node.js 18+
 - Python 3.11+
-- pip
 
 ### Instalação
 
 ```bash
-# Clone o repositório
 git clone https://github.com/BeiruthDEV/gestao-ativa-demo.git
 cd gestao-ativa-demo
 
@@ -249,27 +254,27 @@ CLEARBIT_API_KEY=sua_chave_aqui   # opcional — logos fallback para inicial
 ```
 gestao-ativa-demo/
 ├── src/
-│   ├── app/                    # Pages (Next.js App Router)
+│   ├── app/
 │   │   ├── page.tsx            # Home — upload + dashboard free
-│   │   ├── login/              # Autenticação
-│   │   ├── pricing/            # Planos
-│   │   └── premium/            # Rotas protegidas
-│   │       ├── dashboard/      # Analytics avançado
-│   │       ├── transactions/   # Listagem + filtros
+│   │   ├── login/
+│   │   ├── pricing/
+│   │   └── premium/
+│   │       ├── dashboard/
+│   │       ├── transactions/
 │   │       ├── zeno/           # Chat AI
-│   │       ├── habits/         # Hábitos
-│   │       ├── goals/          # Metas
-│   │       ├── agenda/         # Calendário
-│   │       └── export/         # CSV export
-│   ├── components/             # Componentes React
-│   └── lib/                    # Lógica de negócio
+│   │       ├── habits/
+│   │       ├── goals/
+│   │       ├── agenda/
+│   │       └── export/
+│   ├── components/
+│   └── lib/
 │       ├── storage.ts          # localStorage wrapper
 │       ├── data-utils.ts       # Pipeline de analytics
 │       ├── zeno-parser.ts      # NLP de mensagens do usuário
 │       ├── limit-service.ts    # Quotas do plano free
 │       └── export-service.ts   # Geração de CSV
 ├── backend/
-│   ├── main.py                 # FastAPI app + rotas
+│   ├── main.py
 │   ├── parser.py               # PDF/CSV parsing + categorização
 │   └── brand_resolver.py       # Extração de marca + Clearbit
 └── public/
@@ -290,7 +295,7 @@ gestao-ativa-demo/
 
 ## Licença
 
-Este repositório é uma **versão demo** com código simplificado para fins de portfólio. A lógica de parsing avançada, regras de categorização completas e sistema de autenticação não estão incluídos.
+MIT — uso livre para fins de estudo e portfólio.
 
 ---
 
@@ -298,6 +303,6 @@ Este repositório é uma **versão demo** com código simplificado para fins de 
 
 Feito com foco em UX e performance financeira real.
 
-**[BeiruthDEV](https://github.com/BeiruthDEV)**
+**[BeiruthDEV](https://github.com/BeiruthDEV)** · [LinkedIn](https://www.linkedin.com/in/matheusbeiruth)
 
 </div>
